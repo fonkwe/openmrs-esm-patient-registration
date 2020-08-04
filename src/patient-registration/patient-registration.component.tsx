@@ -8,10 +8,12 @@ import {
   getUniquePatientIdentifier,
   savePatient,
   uuidTelephoneNumber,
+  uuidContactPerson,
 } from './patient-registration.resource';
 import { createErrorHandler } from '@openmrs/esm-error-handling';
 import { DemographicsSection } from './section/demographics-section.component';
 import { ContactInfoSection } from './section/contact-info-section.component';
+import { ContactPersonSection } from './section/contact-person-section.component';
 import styles from './patient-registration.css';
 
 export interface FormValues {
@@ -31,6 +33,11 @@ export interface FormValues {
   stateProvince: string;
   country: string;
   postalCode: string;
+  contactPersonGivenName: string;
+  contactPersonMiddleName: string;
+  contactPersonFamilyName: string;
+  contactPersonTelephoneNumber: string;
+  contactPersonRelationship: string;
 }
 
 export const PatientRegistration: React.FC = () => {
@@ -54,6 +61,11 @@ export const PatientRegistration: React.FC = () => {
     stateProvince: '',
     country: '',
     postalCode: '',
+    contactPersonGivenName: '',
+    contactPersonMiddleName: '',
+    contactPersonFamilyName: '',
+    contactPersonTelephoneNumber: '',
+    contactPersonRelationship: '',
   };
 
   useEffect(() => {
@@ -93,7 +105,7 @@ export const PatientRegistration: React.FC = () => {
             familyName: values.familyName,
           },
         ],
-        gender: values.gender,
+        gender: values.gender.charAt(0),
         birthdate: values.birthdate,
         birthdateEstimated: values.birthdateEstimated,
         attributes: [
@@ -115,6 +127,32 @@ export const PatientRegistration: React.FC = () => {
       },
     };
 
+    if (values.contactPersonGivenName) {
+      const contactPersonAttributes = [
+        {
+          attributeType: uuidContactPerson.givenName,
+          value: values.contactPersonGivenName,
+        },
+        {
+          attributeType: uuidContactPerson.middleName,
+          value: values.contactPersonMiddleName,
+        },
+        {
+          attributeType: uuidContactPerson.familyName,
+          value: values.contactPersonFamilyName,
+        },
+        {
+          attributeType: uuidContactPerson.telephoneNumber,
+          value: values.contactPersonTelephoneNumber,
+        },
+        {
+          attributeType: uuidContactPerson.relationship,
+          value: values.contactPersonRelationship,
+        },
+      ];
+      patient.person.attributes = patient.person.attributes.concat(contactPersonAttributes);
+    }
+
     savePatient(abortController, patient).then(
       response => response.status == 201 && history.push(`/patient/${response.data.uuid}/chart`),
       createErrorHandler(),
@@ -135,6 +173,7 @@ export const PatientRegistration: React.FC = () => {
             <h1 className={`omrs-type-title-1 ${styles.title}`}>New Patient</h1>
             <DemographicsSection setFieldValue={props.setFieldValue} values={props.values} />
             <ContactInfoSection />
+            {localStorage.getItem('patient-registration:contact-person') === 'true' && <ContactPersonSection />}
             <button className={`omrs-btn omrs-filled-action ${styles.submit}`} type="submit">
               Register Patient
             </button>

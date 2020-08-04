@@ -33,7 +33,7 @@ describe('demographics section', () => {
   it('updates to correct gender', async () => {
     const { container } = render(<PatientRegistration />);
     const genderSelect = container.querySelector('select[name="gender"]') as HTMLSelectElement;
-    const expectedGender = 'M';
+    const expectedGender = 'Male';
 
     await wait(() => {
       fireEvent.change(genderSelect, { target: { value: expectedGender } });
@@ -76,4 +76,106 @@ describe('contact info section', () => {
   updateAddress('stateProvince');
   updateAddress('country');
   updateAddress('postalCode');
+});
+
+describe('contact person section', () => {
+  beforeAll(() => {
+    localStorage.setItem('patient-registration:contact-person', 'true');
+  });
+
+  it('renders contact person section', async () => {
+    let contactPersonSection: HTMLElement[];
+
+    await wait(() => {
+      const { getAllByLabelText } = render(<PatientRegistration />);
+      contactPersonSection = getAllByLabelText('contactPersonSection');
+    });
+
+    expect(contactPersonSection).toHaveLength(1);
+  });
+
+  const checkNameExists = (name: string) => {
+    it('has a ' + name + ' field', async () => {
+      const { container } = render(<PatientRegistration />);
+      let contactPersonInput: HTMLInputElement;
+
+      await wait(() => {
+        contactPersonInput = container.querySelector('input[name="' + name + '"]') as HTMLInputElement;
+      });
+
+      expect(contactPersonInput).toBeTruthy();
+    });
+  };
+
+  checkNameExists('contactPersonGivenName');
+  checkNameExists('contactPersonMiddleName');
+  checkNameExists('contactPersonFamilyName');
+
+  const updateName = (name: string) => {
+    it('updates ' + name + ' to correct name', async () => {
+      const { container } = render(<PatientRegistration />);
+      const contactPersonInput = container.querySelector('input[name="' + name + '"]') as HTMLInputElement;
+      const expectedValue = 'Paul';
+
+      await wait(() => {
+        fireEvent.change(contactPersonInput, { target: { value: expectedValue } });
+      });
+
+      expect(contactPersonInput.value).toEqual(expectedValue);
+    });
+  };
+
+  updateName('contactPersonGivenName');
+  updateName('contactPersonMiddleName');
+  updateName('contactPersonFamilyName');
+
+  it('check contact person phone field exist', async () => {
+    const { container } = render(<PatientRegistration />);
+    let contactPersonTelephoneNumberInput: HTMLInputElement;
+
+    await wait(() => {
+      contactPersonTelephoneNumberInput = container.querySelector(
+        'input[name="contactPersonTelephoneNumber"]',
+      ) as HTMLInputElement;
+    });
+    expect(contactPersonTelephoneNumberInput).toBeTruthy();
+  });
+
+  it('updates phone to correct phone', async () => {
+    const { container } = render(<PatientRegistration />);
+    const contactPersonTelephoneNumberInput = container.querySelector(
+      'input[name="contactPersonTelephoneNumber"]',
+    ) as HTMLInputElement;
+    const expectedValue = '9343949';
+
+    await wait(() => {
+      fireEvent.change(contactPersonTelephoneNumberInput, { target: { value: expectedValue } });
+    });
+
+    expect(contactPersonTelephoneNumberInput.value).toEqual(expectedValue);
+  });
+
+  it('check contact person relationship field exist', async () => {
+    const { container } = render(<PatientRegistration />);
+    let contactPersonRelationshipInput: HTMLInputElement;
+
+    await wait(() => {
+      contactPersonRelationshipInput = container.querySelector(
+        'select[name="contactPersonRelationship"]',
+      ) as HTMLInputElement;
+    });
+    expect(contactPersonRelationshipInput).toBeTruthy();
+  });
+
+  it('updates to correct relationship', async () => {
+    const { container } = render(<PatientRegistration />);
+    const relationshipSelect = container.querySelector('select[name="contactPersonRelationship"]') as HTMLSelectElement;
+    const expectedRelationship = 'Sibling';
+
+    await wait(() => {
+      fireEvent.change(relationshipSelect, { target: { value: expectedRelationship } });
+    });
+
+    expect(relationshipSelect.value).toEqual(expectedRelationship);
+  });
 });
