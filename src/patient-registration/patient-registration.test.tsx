@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { render, fireEvent, wait, getByLabelText } from '@testing-library/react';
+import { render, fireEvent, wait } from '@testing-library/react';
 import dayjs from 'dayjs';
 import { PatientRegistration } from './patient-registration.component';
 
@@ -33,7 +33,7 @@ describe('demographics section', () => {
   it('updates to correct gender', async () => {
     const { container } = render(<PatientRegistration />);
     const genderSelect = container.querySelector('select[name="gender"]') as HTMLSelectElement;
-    const expectedGender = 'M';
+    const expectedGender = 'Male';
 
     await wait(() => {
       fireEvent.change(genderSelect, { target: { value: expectedGender } });
